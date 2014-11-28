@@ -1,22 +1,22 @@
 var express = require('express');
 var web = express();
 var http = require('http').Server(web);
-var io = require('socket.io')(http);
 var path = require('path');
+var io = require('socket.io')(http);
 
-var client_pub_path = path.resolve('../client/public');
-
-web.get('/comm/*', function(req, res){
-  console.log("communications from client to server")
-})
-
-web.use(express.static(client_pub_path));
-
-io.on('connection', function(socket){
-  console.log('user connection established');
-  io.emit('confirmation')
-})
+web.use(express.static(path.resolve('../client/public')));
 
 http.listen(3000, function(){
-  console.log('listening on *:3000')
+  console.log('Starting TBG Server on *:3000')
+})
+
+io.on('connection', function(socket){
+  console.log('Connection Established');
+  socket.emit('confirmation')
+  console.log('Collecting Client Information')
+
+  socket.on('chat.public_message', function(user, message){
+    console.log('message ' + message + ' was sent in by ' + user)
+    io.emit('chat.global', user, message)
+  })
 })
