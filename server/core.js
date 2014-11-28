@@ -1,8 +1,9 @@
 var web = require('express')();
 var http = require('http').Server(web);
 var io = require('socket.io')(http);
+var path = require('path');
 
-var client_pub = '/home/mordof/Tick-Based-Game/client/public'
+var client_pub = path.resolve('../client/public');
 
 web.get('/', function(req, res){
   res.sendFile(client_pub+"/index.html")
