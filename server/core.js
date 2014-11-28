@@ -1,13 +1,16 @@
-var web = require('express')();
+var express = require('express');
+var web = express();
 var http = require('http').Server(web);
 var io = require('socket.io')(http);
 var path = require('path');
 
-var client_pub = path.resolve('../client/public');
+var client_pub_path = path.resolve('../client/public');
 
-web.get('/', function(req, res){
-  res.sendFile(client_pub+"/index.html")
+web.get('/comm/*', function(req, res){
+  console.log("communications from client to server")
 })
+
+web.use(express.static(client_pub_path));
 
 io.on('connection', function(socket){
   console.log('user connection established');
