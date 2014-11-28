@@ -11,6 +11,8 @@ socket.on('chat.global', function(user, msg){
   li.appendChild(p)
 
   document.getElementById("messages").appendChild(li);
+
+  li.scrollIntoView();
 })
 
 function send_message(msg){
