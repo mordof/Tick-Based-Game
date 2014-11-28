@@ -1,0 +1,13 @@
+<!doctype html>
+<html>
+  <head>
+    <script src="/socket.io-client/socket.io.js"></script>
+    <script>
+      var socket = io();
+
+      socket.on('confirmation', function(){
+        console.log('got confirmation message');
+      })
+    </script>
+  </head>
+  <body>
