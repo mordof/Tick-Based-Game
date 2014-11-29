@@ -10,6 +10,8 @@ http.listen(3000, function(){
   console.log('Starting TBG Server on *:3000')
 })
 
+var users = {};
+
 var box_details = {
   box_4: {
     x: 22,
@@ -29,7 +31,20 @@ var box_details = {
 
 io.on('connection', function(socket){
   console.log('Connection Established');
-  socket.emit('confirmation')
+
+  // login attempt from client - if successful, populate into users object collection
+  // and set vars such as sock id, etc.
+  socket.on('doLogin', function(data, fn) {
+    if (users[data.un]) {
+      fn({"status": "error", "msg": "User is already logged in."});
+    } else {
+      users[data.un] = {};
+      users[data.un].socket = socket.id;
+      console.log(users);
+      fn({"status": "success"});
+    }
+  });
+
   console.log('Collecting Client Information')
 
   socket.on('chat.public_message', function(user, message){

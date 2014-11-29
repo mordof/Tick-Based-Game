@@ -1,8 +1,20 @@
 var socket = io();
 
-socket.on('confirmation', function(){
-  console.log('got confirmation message');
-})
+
+// do login right away
+// --------------------------------------------
+  var userName = ""; 
+  while (userName == "" || userName == false) {
+    userName = prompt("Enter your name");   // prompt for username persistently
+  }
+
+  // once we have username, send to server to attempt login;
+  socket.emit('doLogin', {"un": userName}, function(respObj) {
+    if (respObj.status == "error") {
+      alert(respObj.msg);
+    }
+  });
+
 
 socket.on('chat.global', function(user, msg){
   var li = document.createElement('li');
