@@ -31,3 +31,30 @@ document.getElementById("input_form").onsubmit = function(e){
   e.preventDefault();
   return false;
 }
+
+var box_data = {};
+
+function get_boxes(){
+  socket.emit('world.get_boxes', function(boxes){
+    boxes.forEach(function(ele){
+      socket.emit('world.get_box_details', ele, function(data){
+        box_data[ele] = data;
+        console.log(data);
+        create_box(data)
+      })
+    })
+  })
+}
+
+function create_box(data){
+  var div = document.createElement('div');
+  div.style.position = "absolute";
+  div.style.top = data.y + "px";
+  div.style.left = data.x + "px";
+  div.style.width = "50px";
+  div.style.height = "50px";
+  div.style.border = "1px solid black";
+  div.style.backgroundColor = "yellow";
+
+  document.body.appendChild(div);
+}
