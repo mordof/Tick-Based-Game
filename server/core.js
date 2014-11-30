@@ -28,6 +28,28 @@ var box_details = {
   }
 }
 
+var stars = {
+  star_1: {
+    type: "star",
+    color: "blue",
+    offset: { x: 10, y: 50 }
+  },
+  star_2: {
+    type: "star",
+    color: "red",
+    offset: { x: 50, y: 30 }
+  }
+}
+
+var grid = [
+  [null, null, null, null, null, null],
+  [null, stars["star_1"], null, null, null, null],
+  [null, null, null, null, null, null],
+  [null, null, null, null, null, null],
+  [null, stars["star_1"], null, null, stars["star_2"], null],
+  [null, null, null, null, null, null]
+]
+
 io.on('connection', function(socket){
   // login attempt from client - if successful, populate into users object collection
   // and set vars such as sock id, etc.
@@ -52,6 +74,10 @@ io.on('connection', function(socket){
       io.emit('chat.system', "User " + user.name + " has disconnected.");
     }
   })
+
+  socket.on('viewport.get_grid', function(fn){
+    fn(grid);
+  });
 
   socket.on('chat.public_message', function(message){
     var user = users.find_by_socket(socket.id)
