@@ -15,27 +15,27 @@ var socket = io();
     }
   });
 
+socket.on('chat.system', function(msg){
+  write_chat_message(msg);
+})
 
 socket.on('chat.global', function(user, msg){
-  var li = document.createElement('li');
-  var p = document.createElement('p');
-  p.appendChild(document.createTextNode(user + ": " + msg));
-  li.appendChild(p)
-
-  document.getElementById("messages").appendChild(li);
-
-  li.scrollIntoView();
+  write_chat_message(user + ": " + msg)
 })
 
 function send_message(msg){
-  var user = document.getElementById("username").value;
-  socket.emit('chat.public_message', user, msg);
+  socket.emit('chat.public_message', msg);
 }
 
 document.getElementById("m").onkeyup = function(e){
   if(e.keyCode == 13){
-    send_message(this.value)
-    this.value = "";
+    if(this.value.substr(0,1) == "/"){
+      run_func(this.value.substr(1))
+      this.value = "";
+    } else {
+      send_message(this.value)
+      this.value = "";
+    }
   }
 }
 
@@ -44,14 +44,33 @@ document.getElementById("input_form").onsubmit = function(e){
   return false;
 }
 
+function run_func(func_name){
+  switch(func_name){
+    case "get_boxes":
+      write_chat_message("~get_boxes called")
+      get_boxes();
+      break;
+  }
+}
+
 var box_data = {};
+
+function write_chat_message(message){
+  var li = document.createElement('li');
+  var p = document.createElement('p');
+  p.appendChild(document.createTextNode(message));
+  li.appendChild(p)
+
+  document.getElementById("messages").appendChild(li);
+
+  li.scrollIntoView();
+}
 
 function get_boxes(){
   socket.emit('world.get_boxes', function(boxes){
     boxes.forEach(function(ele){
       socket.emit('world.get_box_details', ele, function(data){
         box_data[ele] = data;
-        console.log(data);
         create_box(data)
       })
     })

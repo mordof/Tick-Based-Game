@@ -30,8 +30,6 @@ var box_details = {
 }
 
 io.on('connection', function(socket){
-  console.log('Connection Established');
-
   // login attempt from client - if successful, populate into users object collection
   // and set vars such as sock id, etc.
   socket.on('doLogin', function(data, fn) {
@@ -40,16 +38,22 @@ io.on('connection', function(socket){
     } else {
       users[data.un] = {};
       users[data.un].socket = socket.id;
-      console.log(users);
+      users[data.un].name = data.un;
+      console.log("User " + data.un + " connected.")
+      io.emit('chat.system', "User " + data.un + " has connected.")
       fn({"status": "success"});
     }
   });
 
-  console.log('Collecting Client Information')
+  socket.on('disconnect', function(){
+    var user = get_user_by_socket(socket);
+    delete users[user.name];
+    console.log('User ' + user.name + " disconnected.")
+  })
 
-  socket.on('chat.public_message', function(user, message){
-    console.log('message ' + message + ' was sent in by ' + user)
-    io.emit('chat.global', user, message)
+  socket.on('chat.public_message', function(message){
+    var user = get_user_by_socket(socket)
+    io.emit('chat.global', user.name, message)
   })
 
   socket.on('world.get_box_details', function(boxID, fn){
@@ -61,3 +65,20 @@ io.on('connection', function(socket){
   })
 })
 
+// Don't call this on large objects. If you need to search through large objects,
+// they need to be indexed to be searched through properly.
+Object.prototype.find = function(fn){
+  for(var obj in this){
+    if(this.hasOwnProperty(obj)){
+      if(fn(this[obj])){
+        return this[obj];
+      }
+    }
+  }
+
+  return false;
+}
+
+function get_user_by_socket(socket){
+  return users.find(function(user){ return user.socket == socket.id })
+}
