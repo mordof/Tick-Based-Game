@@ -3,14 +3,13 @@ var web = express();
 var http = require('http').Server(web);
 var path = require('path');
 var io = require('socket.io')(http);
+var users = require('./users.js')
 
 web.use(express.static(path.resolve('../client/public')));
 
 http.listen(3000, function(){
   console.log('Starting TBG Server on *:3000')
 })
-
-var users = {};
 
 var box_details = {
   box_4: {
@@ -33,12 +32,10 @@ io.on('connection', function(socket){
   // login attempt from client - if successful, populate into users object collection
   // and set vars such as sock id, etc.
   socket.on('doLogin', function(data, fn) {
-    if (users[data.un]) {
+    if (users.exists(data.un)) {
       fn({"status": "error", "msg": "User is already logged in."});
     } else {
-      users[data.un] = {};
-      users[data.un].socket = socket.id;
-      users[data.un].name = data.un;
+      users.add(data, socket);
       console.log("User " + data.un + " connected.")
       io.emit('chat.system', "User " + data.un + " has connected.")
       fn({"status": "success"});
@@ -46,14 +43,25 @@ io.on('connection', function(socket){
   });
 
   socket.on('disconnect', function(){
-    var user = get_user_by_socket(socket);
-    delete users[user.name];
-    console.log('User ' + user.name + " disconnected.")
+    var user = users.find_by_socket(socket.id);
+    // If server gets restarted, and browser still holds hope for a reconnect,
+    // a refresh of the client page will trigger a disconnect to an unknown user server side.
+    if(user){
+      users.remove(socket.id);
+      console.log('User ' + user.name + " disconnected.")
+      io.emit('chat.system', "User " + user.name + " has disconnected.");
+    }
   })
 
   socket.on('chat.public_message', function(message){
-    var user = get_user_by_socket(socket)
-    io.emit('chat.global', user.name, message)
+    var user = users.find_by_socket(socket.id)
+    if(user){
+      io.emit('chat.global', user.name, message)
+    } else {
+      // There was a problem - a socket sent in a message that wasn't associated with a
+      // user in our system. 
+      console.warn("WARNING: An unidentified socket has sent a message.");
+    }
   })
 
   socket.on('world.get_box_details', function(boxID, fn){
@@ -64,21 +72,3 @@ io.on('connection', function(socket){
     fn(['box_4', 'box_8'])
   })
 })
-
-// Don't call this on large objects. If you need to search through large objects,
-// they need to be indexed to be searched through properly.
-Object.prototype.find = function(fn){
-  for(var obj in this){
-    if(this.hasOwnProperty(obj)){
-      if(fn(this[obj])){
-        return this[obj];
-      }
-    }
-  }
-
-  return false;
-}
-
-function get_user_by_socket(socket){
-  return users.find(function(user){ return user.socket == socket.id })
-}
