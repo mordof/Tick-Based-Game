@@ -2,7 +2,10 @@ var socket = io();
 
 
 // do login right away
-// --------------------------------------------
+// --------------------
+promptLogin();
+
+function promptLogin() {
   var userName = ""; 
   while (userName == "" || userName == false) {
     userName = prompt("Enter your name");   // prompt for username persistently
@@ -12,9 +15,11 @@ var socket = io();
   socket.emit('doLogin', {"un": userName}, function(respObj) {
     if (respObj.status == "error") {
       alert(respObj.msg);
+      promptLogin();  // if things failed, let the user try again
     }
   });
-
+}
+  
 socket.on('chat.system', function(msg){
   write_chat_message(msg);
 })
