@@ -3,13 +3,17 @@ var web = express();
 var http = require('http').Server(web);
 var path = require('path');
 var io = require('socket.io')(http);
-var users = require('./users.js')
+var users = require('./users.js');
+var db = require('./models.js');
 
 web.use(express.static(path.resolve('../client/public')));
 
-http.listen(3000, function(){
-  console.log('Starting TBG Server on *:3000')
+http.listen(3030, function(){
+  console.log('Starting TBG Server on *:3030')
 })
+
+//db.Star.find({ color: 'yellow' }, function(err, data){ console.log(data) })
+
 
 var box_details = {
   box_4: {
@@ -40,6 +44,10 @@ var stars = {
     offset: { x: 50, y: 30 }
   }
 }
+
+
+
+
 
 var grid = [
   [null, null, null, null, null, null],
