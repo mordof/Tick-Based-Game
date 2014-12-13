@@ -2,7 +2,7 @@
   "name": "server",
   "version": "0.0.0",
   "description": "",
-  "main": "core.js",
+  "main": "evented_server.js",
   "dependencies": {
     "express": "~4.10.4",
     "socket.io": "~1.2.1",
