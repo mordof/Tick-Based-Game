@@ -10,15 +10,6 @@ var starSchema = new mongoose.Schema({
   }
 })
 
-var boxSchema = new mongoose.Schema({
-  x: Number,
-  y: Number,
-  properties: { 
-    item_value: Number 
-  }
-})
-
 module.exports  = {
-  Star: mongoose.model('Star', starSchema),
-  Box: mongoose.model('Box', boxSchema)
+  Star: mongoose.model('Star', starSchema)
 }

@@ -6,11 +6,11 @@ function does_user_exist(name){
 }
 
 function register_user(data, socket_id){
-  users[data.un] = {};
-  users[data.un].socket = socket.id;
-  users[data.un].name = data.un;
+  users[data.username] = {};
+  users[data.username].socket = socket_id;
+  users[data.username].name = data.username;
 
-  socket_index[socket.id] = data.un;
+  socket_index[socket_id] = data.username;
 }
 
 function remove_user(socket_id){
@@ -43,6 +43,7 @@ function find_user_by_name(name){
 }
 
 module.exports = {
+  user_list: users,
   exists:  does_user_exist,
   add: register_user,
   remove: remove_user,
