@@ -49,7 +49,7 @@ io.on('connection', function(socket){
     if (users.exists(data.un)) {
       fn({"status": "error", "msg": "User is already logged in."});
     } else {
-      users.add(data, socket);
+      users.add(data, socket.id);
       console.log("User " + data.un + " connected.")
       io.emit('chat.system', "User " + data.un + " has connected.")
       fn({"status": "success"});

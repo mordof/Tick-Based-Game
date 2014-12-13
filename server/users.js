@@ -5,7 +5,7 @@ function does_user_exist(name){
   return !!users[name];
 }
 
-function register_user(data, socket){
+function register_user(data, socket_id){
   users[data.un] = {};
   users[data.un].socket = socket.id;
   users[data.un].name = data.un;
