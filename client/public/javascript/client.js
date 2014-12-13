@@ -39,8 +39,8 @@ function get_grid(){
         grid_item.style.outline = "1px solid #ccc";
 
         if(grid[y][x]){
-          switch(grid[y][x].type){
-            case "star":
+          //switch(grid[y][x].type){
+          //  case "star":
               var star = document.createElement('div');
               star.style.position = "relative";
               star.style.top = grid[y][x].offset.y + "px";
@@ -50,8 +50,8 @@ function get_grid(){
               star.style.height = "10px";
 
               grid_item.appendChild(star);
-              break;
-          }
+         //     break;
+        //  }
         }
 
         viewport.appendChild(grid_item);
@@ -99,7 +99,17 @@ function run_func(func_name){
       write_chat_message(" - rendering grid items")
       get_grid();
       break;
+    case "test":
+      write_chat_message(" - running test call")
+      do_test();
+      break;
   }
+}
+
+function do_test(){
+  socket.emit('test', function(response){
+    console.log(response);
+  })
 }
 
 var box_data = {};

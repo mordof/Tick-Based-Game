@@ -6,57 +6,41 @@ var io = require('socket.io')(http);
 var users = require('./users.js');
 var db = require('./models.js');
 
+// Load all Models from db into the global scope so Star, Box, etc are available
+for(model in db){
+  if(db.hasOwnProperty(model)){
+    global[model] = db[model];
+  }
+}
+
 web.use(express.static(path.resolve('../client/public')));
 
 http.listen(3030, function(){
   console.log('Starting TBG Server on *:3030')
 })
 
-//db.Star.find({ color: 'yellow' }, function(err, data){ console.log(data) })
+function populate_grid(cb){
+  var grid = [
+    [null, null, null, null, null, null],
+    [null, 1, null, null, null, null],
+    [null, null, null, null, null, null],
+    [null, null, null, null, null, null],
+    [null, 1, null, null, 2, null],
+    [null, null, null, null, null, null]
+  ]
 
-
-var box_details = {
-  box_4: {
-    x: 22,
-    y: 200,
-    props: {
-      item_value: 42
+  Star.find(function(err, data){
+    for(var y = 0; y < grid.length; y++){
+      for(var x = 0; x < grid[y].length; x++){
+        if(grid[y][x]){
+          grid[y][x] = data[grid[x][y] - 1]
+        }
+      }
     }
-  },
-  box_8: {
-    x: 220,
-    y: 50,
-    props: {
-      item_value: 42
-    }
-  }
+
+    cb(grid);
+  })
 }
-
-var stars = {
-  star_1: {
-    type: "star",
-    color: "blue",
-    offset: { x: 10, y: 50 }
-  },
-  star_2: {
-    type: "star",
-    color: "red",
-    offset: { x: 50, y: 30 }
-  }
-}
-
-
-
-
-
-var grid = [
-  [null, null, null, null, null, null],
-  [null, stars["star_1"], null, null, null, null],
-  [null, null, null, null, null, null],
-  [null, null, null, null, null, null],
-  [null, stars["star_1"], null, null, stars["star_2"], null],
-  [null, null, null, null, null, null]
-]
 
 io.on('connection', function(socket){
   // login attempt from client - if successful, populate into users object collection
@@ -83,9 +67,13 @@ io.on('connection', function(socket){
     }
   })
 
-  socket.on('viewport.get_grid', function(fn){
-    fn(grid);
-  });
+  socket.on('viewport.get_grid', populate_grid);
+
+  socket.on('test', function(fn){
+    setTimeout(function(){
+      fn("rawrasdf");
+    }, 3000)
+  })
 
   socket.on('chat.public_message', function(message){
     var user = users.find_by_socket(socket.id)
