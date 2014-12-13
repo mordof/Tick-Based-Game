@@ -1,23 +1,11 @@
 var socket = io();
 
+var waiting_for_username = true;
 
-// do login right away
-// --------------------
-promptLogin();
+loginMessage();
 
-function promptLogin() {
-  var userName = ""; 
-  while (userName == "" || userName == false) {
-    userName = prompt("Enter your name");   // prompt for username persistently
-  }
-
-  // once we have username, send to server to attempt login;
-  socket.emit('doLogin', {"un": userName}, function(respObj) {
-    if (respObj.status == "error") {
-      alert(respObj.msg);
-      promptLogin();  // if things failed, let the user try again
-    }
-  });
+function loginMessage() {
+  write_chat_message("Please type your username and hit Enter.");
 }
 
 function get_grid(){
@@ -74,12 +62,26 @@ function send_message(msg){
 
 document.getElementById("m").onkeyup = function(e){
   if(e.keyCode == 13){
-    if(this.value.substr(0,1) == "/"){
-      run_func(this.value.substr(1))
+    if(waiting_for_username){
+      var username = this.value;
       this.value = "";
+      // once we have username, send to server to attempt login;
+      socket.emit('login', {"username": username}, function(respObj) {
+        if (respObj.status == "error") {
+          write_chat_message(respObj.msg);
+          loginMessage();
+        } else {
+          waiting_for_username = false;
+        }
+      });
     } else {
-      send_message(this.value)
-      this.value = "";
+      if(this.value.substr(0,1) == "/"){
+        run_func(this.value.substr(1))
+        this.value = "";
+      } else {
+        send_message(this.value)
+        this.value = "";
+      }
     }
   }
 }
