@@ -1,0 +1,6 @@
+development:
+  sessions:
+    default:
+      database: tbg
+      hosts:
+        - localhost:27017
