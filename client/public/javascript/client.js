@@ -34,8 +34,9 @@ function get_grid(){
               star.style.top = grid[y][x].offset.y + "px";
               star.style.left = grid[y][x].offset.x + "px";
               star.style.border = "2px solid " + grid[y][x].color;
-              star.style.width = "10px";
-              star.style.height = "10px";
+              star.style.width = "25px";
+              star.style.height = "25px";
+              star.appendChild(document.createTextNode(grid[y][x].count));
 
               grid_item.appendChild(star);
          //     break;
@@ -91,6 +92,8 @@ document.getElementById("input_form").onsubmit = function(e){
   return false;
 }
 
+var grid_watch_handle = null;
+
 function run_func(func_name){
   switch(func_name){
     case "get_boxes":
@@ -100,6 +103,16 @@ function run_func(func_name){
     case "get_grid":
       write_chat_message(" - rendering grid items")
       get_grid();
+      break;
+    case "watch_grid":
+      write_chat_message(" - watching grid updates...")
+      grid_watch_handle = setInterval(function(){
+        get_grid();
+      }, 2000);
+      break;
+    case "stop_grid_updates":
+      write_chat_message(" - no longer watching for grid updates")
+      clearInterval(grid_watch_handle);
       break;
     case "test":
       write_chat_message(" - running test call")

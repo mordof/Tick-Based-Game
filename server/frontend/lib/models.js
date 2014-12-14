@@ -4,6 +4,7 @@ var db = mongoose.connection;
 
 var starSchema = new mongoose.Schema({
   color: String,
+  count: Number,
   offset: { 
     x: Number, 
     y: Number 
