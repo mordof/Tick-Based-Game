@@ -1,3 +1,7 @@
+require 'rubygems'
+require 'bundler/setup'
+Bundler.require(:default)
+
 def game_loop
   puts "game_loop executed"
 end
