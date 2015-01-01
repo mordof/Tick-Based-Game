@@ -37,25 +37,48 @@ function get_grid(){
         })
 
         if(grid[y][x]){
-          var star = document.createElement('div');
+          var item = grid[y][x].obj;
 
-          apply_css(star, {
-            position: "relative",
-            top: grid[y][x].offset.y + "px",
-            left: grid[y][x].offset.x + "px",
-            border: "2px solid " + grid[y][x].color,
-            width: "25px",
-            height: "25px",
-            backgroundColor: "#fff",
-            borderRadius: "25px",
-            textAlign: "center",
-            lineHeight: "20px",
-            fontSize: "10px"
-          })
+          switch(grid[y][x].type){
+            case "star":
+              var star = document.createElement('div');
 
-          star.appendChild(document.createTextNode(grid[y][x].count));
+              apply_css(star, {
+                position: "relative",
+                top: item.offset.y + "px",
+                left: item.offset.x + "px",
+                border: "2px solid " + item.color,
+                width: "25px",
+                height: "25px",
+                backgroundColor: "#fff",
+                borderRadius: "25px",
+                textAlign: "center",
+                lineHeight: "20px",
+                fontSize: "10px"
+              })
 
-          grid_item.appendChild(star);
+              star.appendChild(document.createTextNode(item.count));
+
+              grid_item.appendChild(star);
+              break;
+            case "ship":
+              var ship = document.createElement('div');
+
+              apply_css(ship, {
+                position: 'relative',
+                width: "10px",
+                height: "10px",
+                border: "2px solid gray",
+                backgroundColor: "#555",
+                fontSize: "8px",
+                lineHeight: "10px",
+                textAlign: "center"
+              })
+
+              ship.appendChild(document.createTextNode(item.name))
+
+              grid_item.appendChild(ship);
+          }
         }
 
         viewport.appendChild(grid_item);

@@ -16,6 +16,7 @@ var starSchema = new mongoose.Schema({
   location: [Number]
 })
 
+starSchema.virtual('type').get(function(){ return 'star'; })
 starSchema.index({ location: '2d' }, { min: game_config['grid']['size']['min'], max: game_config['grid']['size']['max'] })
 
 var shipSchema = new mongoose.Schema({
@@ -23,8 +24,10 @@ var shipSchema = new mongoose.Schema({
   location: [Number]
 })
 
+shipSchema.virtual('type').get(function(){ return 'ship'; })
 shipSchema.index({ location: '2d' }, { min: game_config['grid']['size']['min'], max: game_config['grid']['size']['max'] })
 
 module.exports  = {
-  Star: mongoose.model('Star', starSchema)
+  Star: mongoose.model('Star', starSchema),
+  Ship: mongoose.model('Ship', shipSchema)
 }
