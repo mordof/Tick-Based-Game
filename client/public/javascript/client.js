@@ -4,6 +4,14 @@ var waiting_for_username = true;
 
 loginMessage();
 
+function apply_css(ele, css_obj){
+  for(key in css_obj){
+    if(css_obj.hasOwnProperty(key)){
+      ele.style[key] = css_obj[key];
+    }
+  }
+}
+
 function loginMessage() {
   write_chat_message("Please type your username and hit Enter.");
 }
@@ -19,33 +27,35 @@ function get_grid(){
     for(var x = 0; x < grid.length; x++){
       for(var y = 0; y < grid[x].length; y++){
         var grid_item = document.createElement('div');
-        grid_item.style.position = "absolute";
-        grid_item.style.left = (grid_item_width * x) + "px";
-        grid_item.style.top = (grid_item_height * y) + "px";
-        grid_item.style.width = grid_item_width + "px";
-        grid_item.style.height = grid_item_height + "px";
-        //grid_item.style.outline = "1px solid #ccc";
+
+        apply_css(grid_item, {
+          position: "absolute",
+          left: (grid_item_width * x) + "px",
+          top: (grid_item_height * y) + "px",
+          width: grid_item_width + "px",
+          height: grid_item_height + "px"
+        })
 
         if(grid[y][x]){
-          //switch(grid[y][x].type){
-          //  case "star":
-              var star = document.createElement('div');
-              star.style.position = "relative";
-              star.style.top = grid[y][x].offset.y + "px";
-              star.style.left = grid[y][x].offset.x + "px";
-              star.style.border = "2px solid " + grid[y][x].color;
-              star.style.width = "25px";
-              star.style.height = "25px";
-              star.style.backgroundColor = "#fff"
-              star.style.borderRadius = "25px";
-              star.style.textAlign = "center";
-              star.style.lineHeight = "20px";
-              star.style.fontSize = "10px";
-              star.appendChild(document.createTextNode(grid[y][x].count));
+          var star = document.createElement('div');
 
-              grid_item.appendChild(star);
-         //     break;
-        //  }
+          apply_css(star, {
+            position: "relative",
+            top: grid[y][x].offset.y + "px",
+            left: grid[y][x].offset.x + "px",
+            border: "2px solid " + grid[y][x].color,
+            width: "25px",
+            height: "25px",
+            backgroundColor: "#fff",
+            borderRadius: "25px",
+            textAlign: "center",
+            lineHeight: "20px",
+            fontSize: "10px"
+          })
+
+          star.appendChild(document.createTextNode(grid[y][x].count));
+
+          grid_item.appendChild(star);
         }
 
         viewport.appendChild(grid_item);
@@ -78,6 +88,7 @@ document.getElementById("m").onkeyup = function(e){
           loginMessage();
         } else {
           waiting_for_username = false;
+          watch_grid();
         }
       });
     } else {
@@ -99,40 +110,23 @@ document.getElementById("input_form").onsubmit = function(e){
 
 var grid_watch_handle = null;
 
+function watch_grid(){
+  //start it up the first time right away.
+  get_grid();
+
+  grid_watch_handle = setInterval(function(){
+    get_grid();
+  }, 2000);
+}
+
 function run_func(func_name){
   switch(func_name){
-    case "get_boxes":
-      write_chat_message(" - rendering boxes")
-      get_boxes();
-      break;
-    case "get_grid":
-      write_chat_message(" - rendering grid items")
-      get_grid();
-      break;
-    case "watch_grid":
-      write_chat_message(" - watching grid updates...")
-      grid_watch_handle = setInterval(function(){
-        get_grid();
-      }, 2000);
-      break;
     case "stop_grid_updates":
       write_chat_message(" - no longer watching for grid updates")
       clearInterval(grid_watch_handle);
       break;
-    case "test":
-      write_chat_message(" - running test call")
-      do_test();
-      break;
   }
 }
-
-function do_test(){
-  socket.emit('test', function(response){
-    console.log(response);
-  })
-}
-
-var box_data = {};
 
 function write_chat_message(message){
   var li = document.createElement('li');
@@ -143,28 +137,4 @@ function write_chat_message(message){
   document.getElementById("messages").appendChild(li);
 
   li.scrollIntoView();
-}
-
-function get_boxes(){
-  socket.emit('world.get_boxes', function(boxes){
-    boxes.forEach(function(ele){
-      socket.emit('world.get_box_details', ele, function(data){
-        box_data[ele] = data;
-        create_box(data)
-      })
-    })
-  })
-}
-
-function create_box(data){
-  var div = document.createElement('div');
-  div.style.position = "absolute";
-  div.style.top = data.y + "px";
-  div.style.left = data.x + "px";
-  div.style.width = "50px";
-  div.style.height = "50px";
-  div.style.border = "1px solid black";
-  div.style.backgroundColor = "yellow";
-
-  document.body.appendChild(div);
 }
