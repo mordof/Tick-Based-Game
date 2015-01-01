@@ -1,0 +1,4 @@
+grid:
+  size:
+    min: -400
+    max: 400

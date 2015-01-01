@@ -1,3 +1,5 @@
+require 'yaml'
+
 class Star
   include Mongoid::Document
   field :color, type: String
@@ -5,5 +7,7 @@ class Star
   field :offset, type: Hash
   field :location, type: Array
 
-  index({ location: '2d' }, { min: -400, max: 400 })
+  game_config = YAML.load_file '../config/game.yml'
+
+  index({ location: '2d' }, { min: game_config['grid']['size']['min'], max: game_config['grid']['size']['max'] })
 end
