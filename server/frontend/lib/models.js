@@ -14,6 +14,13 @@ var starSchema = new mongoose.Schema({
 
 starSchema.index({ location: '2d' }, { min: -400, max: 400 })
 
+var shipSchema = new mongoose.Schema({
+  name: String,
+  location: [Number]
+})
+
+shipSchema.index({ location: '2d' }, { min: -400, max: 400 })
+
 module.exports  = {
   Star: mongoose.model('Star', starSchema)
 }
