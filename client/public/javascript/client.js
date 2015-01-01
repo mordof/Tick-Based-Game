@@ -24,7 +24,7 @@ function get_grid(){
         grid_item.style.top = (grid_item_height * y) + "px";
         grid_item.style.width = grid_item_width + "px";
         grid_item.style.height = grid_item_height + "px";
-        grid_item.style.outline = "1px solid #ccc";
+        //grid_item.style.outline = "1px solid #ccc";
 
         if(grid[y][x]){
           //switch(grid[y][x].type){
@@ -36,6 +36,11 @@ function get_grid(){
               star.style.border = "2px solid " + grid[y][x].color;
               star.style.width = "25px";
               star.style.height = "25px";
+              star.style.backgroundColor = "#fff"
+              star.style.borderRadius = "25px";
+              star.style.textAlign = "center";
+              star.style.lineHeight = "20px";
+              star.style.fontSize = "10px";
               star.appendChild(document.createTextNode(grid[y][x].count));
 
               grid_item.appendChild(star);

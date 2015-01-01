@@ -6,7 +6,7 @@ var io = require('socket.io')(http);
 var users = require('./lib/users.js');
 var db = require('./lib/models.js');
 
-// Load all Models from db into the global scope so Star, Box, etc are available
+// Load all Models from db into the global scope so Star is available
 for(model in db){
   if(db.hasOwnProperty(model)){
     global[model] = db[model];
@@ -19,21 +19,43 @@ http.listen(3030, function(){
   console.log('Starting TBG Server on *:3030')
 })
 
+Array.prototype.matches = function(arr){
+  function is_equal_to(a, b) {
+    return a === b && (a !== 0 || 1 / a === 1 / b) // false for +0 vs -0
+        || a !== a && b !== b; // true for NaN vs NaN
+  }
+
+  var self = this;
+
+  if(self.length == arr.length && self.every(function(item, index){ return is_equal_to(item, arr[index]); })){
+    return true;
+  } else {
+    return false;
+  }
+}
+
 function populate_grid(callback){
-  var grid = [
-    [null, null, null, null, null, null],
-    [null, 1, null, null, null, null],
-    [null, null, null, null, null, null],
-    [null, null, null, null, null, null],
-    [null, 1, null, null, 2, null],
-    [null, null, null, null, null, null]
-  ]
+  var grid_size = 10;
+  var grid = [];
 
   Star.find(function(err, data){
-    for(var y = 0; y < grid.length; y++){
-      for(var x = 0; x < grid[y].length; x++){
-        if(grid[y][x]){
-          grid[y][x] = data[grid[x][y] - 1]
+    var stars = {}
+
+    data.forEach(function(item){
+      if(!stars.hasOwnProperty(item.location[0])){
+        stars[item.location[0]] = {};
+      }
+      
+      stars[item.location[0]][item.location[1]] = item;
+    })
+
+    for(var y = 0; y < grid_size; y++){
+      grid[y] = [];
+      for(var x = 0; x < grid_size; x++){
+        if(stars.hasOwnProperty(x + 1) && stars[x + 1].hasOwnProperty(y + 1)){
+          grid[y][x] = stars[x + 1][y + 1]
+        } else {
+          grid[y][x] = null;
         }
       }
     }
