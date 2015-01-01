@@ -114,9 +114,7 @@ function watch_grid(){
   //start it up the first time right away.
   get_grid();
 
-  grid_watch_handle = setInterval(function(){
-    get_grid();
-  }, 2000);
+  grid_watch_handle = setInterval(get_grid, 2000);
 }
 
 function run_func(func_name){
