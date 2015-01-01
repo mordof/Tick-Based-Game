@@ -3,7 +3,7 @@ require './app/game_loop'
 
 # number of seconds to delay loop execution. 
 # loop will fire immediately if more than this delay has passed
-delay = 3 
+delay = 6 
 
 last = Time.now
 while true
