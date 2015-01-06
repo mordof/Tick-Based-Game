@@ -20,21 +20,6 @@ http.listen(3030, function(){
   console.log('Starting TBG Server on *:3030')
 })
 
-Array.prototype.matches = function(arr){
-  function is_equal_to(a, b) {
-    return a === b && (a !== 0 || 1 / a === 1 / b) // false for +0 vs -0
-        || a !== a && b !== b; // true for NaN vs NaN
-  }
-
-  var self = this;
-
-  if(self.length == arr.length && self.every(function(item, index){ return is_equal_to(item, arr[index]); })){
-    return true;
-  } else {
-    return false;
-  }
-}
-
 function populate_grid(callback){
   var socket = this
   var user = ActiveUsers.find_by_socket_id(socket.id)
@@ -128,12 +113,6 @@ function onDisconnect(){
   }
 }
 
-function timeoutTest(fn){
-  setTimeout(function(){
-    fn("rawrasdf");
-  }, 3000)
-}
-
 function chatMessage(message){
   var socket = this;
   var user = ActiveUsers.find_by_socket_id(socket.id)
@@ -150,6 +129,5 @@ io.on('connection', function(socket){
   socket.on('login', onLogin);
   socket.on('disconnect', onDisconnect);
   socket.on('viewport.get_grid', populate_grid);
-  socket.on('test', timeoutTest);
   socket.on('chat.public_message', chatMessage);
 })
