@@ -3,8 +3,9 @@ var web = express();
 var http = require('http').Server(web);
 var path = require('path');
 var io = require('socket.io')(http);
-var users = require('./lib/users.js');
 var db = require('./lib/models.js');
+
+global["ActiveUsers"] = require('./lib/active_users.js');
 
 // Load all Models from db into the global scope so Star is available
 for(model in db){
@@ -35,12 +36,15 @@ Array.prototype.matches = function(arr){
 }
 
 function populate_grid(callback){
+  var socket = this
+  var user = ActiveUsers.find_by_socket_id(socket.id)
+
   var stars = {}
   var ships = {}
-  var stars_populated = false;
-  var ships_populated = false;
+  var stars_populated = false
+  var ships_populated = false
 
-  Star.find(function(err, data){
+  Star.find({ location: { $geoWithin: { $box: user.viewport } } }, function(err, data){
     data.forEach(function(item){
       if(!stars.hasOwnProperty(item.location[0])){
         stars[item.location[0]] = {};
@@ -52,7 +56,7 @@ function populate_grid(callback){
     stars_populated = true;
   })
 
-  Ship.find(function(err, data){
+  Ship.find({ location: { $geoWithin: { $box: user.viewport } } }, function(err, data){
     data.forEach(function(item){
       if(!ships.hasOwnProperty(item.location[0])){
         ships[item.location[0]] = {};
@@ -102,10 +106,10 @@ function send_grid(callback, stars, ships){
 
 function onLogin(data, fn) {
   var socket = this;
-  if (users.exists(data.username)) {
+  if (ActiveUsers.find(data.username)) {
     fn({"status": "error", "msg": "User is already logged in."});
   } else {
-    users.add(data, socket.id);
+    ActiveUsers.add(data.username, socket);
     console.log("User " + data.username + " connected.")
     io.emit('chat.system', "User " + data.username + " has connected.")
     fn({"status": "success"});
@@ -114,13 +118,13 @@ function onLogin(data, fn) {
 
 function onDisconnect(){
   var socket = this;
-  var user = users.find_by_socket(socket.id);
+  var user = ActiveUsers.find_by_socket_id(socket.id);
   // If server gets restarted, and browser still holds hope for a reconnect,
   // a refresh of the client page will trigger a disconnect to an unknown user server side.
   if(user){
-    users.remove(socket.id);
     console.log('User ' + user.name + " disconnected.")
     io.emit('chat.system', "User " + user.name + " has disconnected.");
+    ActiveUsers.remove_by_socket_id(socket.id);
   }
 }
 
@@ -132,7 +136,7 @@ function timeoutTest(fn){
 
 function chatMessage(message){
   var socket = this;
-  var user = users.find_by_socket(socket.id)
+  var user = ActiveUsers.find_by_socket_id(socket.id)
   if(user){
     io.emit('chat.global', user.name, message)
   } else {
