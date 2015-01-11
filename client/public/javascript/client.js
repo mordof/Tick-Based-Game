@@ -15,77 +15,6 @@ function apply_css(ele, css_obj){
 function loginMessage() {
   write_chat_message("Please type your username and hit Enter.");
 }
-
-function get_grid(){
-  socket.emit('viewport.get_grid', function(grid){
-    var viewport = document.getElementById("viewport");
-    viewport.innerHTML = "";
-
-    var grid_item_width = 600 / grid.length;
-    var grid_item_height = 600 / grid[0].length;
-
-    for(var x = 0; x < grid.length; x++){
-      for(var y = 0; y < grid[x].length; y++){
-        var grid_item = document.createElement('div');
-
-        apply_css(grid_item, {
-          position: "absolute",
-          left: (grid_item_width * x) + "px",
-          top: (grid_item_height * y) + "px",
-          width: grid_item_width + "px",
-          height: grid_item_height + "px"
-        })
-
-        if(grid[y][x]){
-          var item = grid[y][x].obj;
-
-          switch(grid[y][x].type){
-            case "star":
-              var star = document.createElement('div');
-
-              apply_css(star, {
-                position: "relative",
-                top: item.offset.y + "px",
-                left: item.offset.x + "px",
-                border: "2px solid " + item.color,
-                width: "25px",
-                height: "25px",
-                backgroundColor: "#fff",
-                borderRadius: "25px",
-                textAlign: "center",
-                lineHeight: "20px",
-                fontSize: "10px"
-              })
-
-              star.appendChild(document.createTextNode(item.count));
-
-              grid_item.appendChild(star);
-              break;
-            case "ship":
-              var ship = document.createElement('div');
-
-              apply_css(ship, {
-                position: 'relative',
-                width: "10px",
-                height: "10px",
-                border: "2px solid gray",
-                backgroundColor: "#555",
-                fontSize: "8px",
-                lineHeight: "10px",
-                textAlign: "center"
-              })
-
-              ship.appendChild(document.createTextNode(item.name))
-
-              grid_item.appendChild(ship);
-          }
-        }
-
-        viewport.appendChild(grid_item);
-      }
-    }
-  })
-}
   
 socket.on('chat.system', function(msg){
   write_chat_message(msg);
@@ -111,7 +40,7 @@ document.getElementById("m").onkeyup = function(e){
           loginMessage();
         } else {
           waiting_for_username = false;
-          watch_grid();
+          get_grid();
         }
       });
     } else {

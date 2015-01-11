@@ -8,6 +8,7 @@ ActiveUsers.prototype.find = function(name){
 }
 
 ActiveUsers.prototype.add = function(name, socket){
+  console.log(socket.id);
   this.users[name] = {
     socket: socket,
     name: name,
