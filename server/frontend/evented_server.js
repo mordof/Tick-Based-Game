@@ -4,8 +4,9 @@ var http = require('http').Server(web);
 var path = require('path');
 var io = require('socket.io')(http);
 var db = require('./lib/models.js');
+var tcp_net = require('net');
 
-global["ActiveUsers"] = require('./lib/active_users.js');
+global["ActiveUsers"] = require('./lib/active_users.js')(io);
 
 // Load all Models from db into the global scope so Star is available
 for(model in db){
@@ -96,7 +97,7 @@ function onLogin(data, fn) {
   } else {
     ActiveUsers.add(data.username, socket);
     console.log("User " + data.username + " connected.")
-    io.emit('chat.system', "User " + data.username + " has connected.")
+    ActiveUsers.dispatch_system_message("User " + data.username + " has connected.");
     fn({"status": "success"});
   }
 }
@@ -108,8 +109,8 @@ function onDisconnect(){
   // a refresh of the client page will trigger a disconnect to an unknown user server side.
   if(user){
     console.log('User ' + user.name + " disconnected.")
-    io.emit('chat.system', "User " + user.name + " has disconnected.");
     ActiveUsers.remove_by_socket_id(socket.id);
+    ActiveUsers.dispatch_system_message("User " + user.name + " has disconnected.")
   }
 }
 
@@ -117,7 +118,7 @@ function chatMessage(message){
   var socket = this;
   var user = ActiveUsers.find_by_socket_id(socket.id)
   if(user){
-    io.emit('chat.global', user.name, message)
+    ActiveUsers.dispatch_user_message(user.name, message);
   } else {
     // There was a problem - a socket sent in a message that wasn't associated with a
     // user in our system. 
@@ -131,3 +132,61 @@ io.on('connection', function(socket){
   socket.on('viewport.get_grid', populate_grid);
   socket.on('chat.public_message', chatMessage);
 })
+
+tcp_net.createServer(function(socket){
+  socket.id = "tcp_" + (+(new Date)) + socket.remoteAddress + socket.remotePort;
+
+  var raw_buffer = "";
+
+  socket.on('data', function(buffer){
+    raw_buffer += buffer.toString('utf-8');
+
+    var last_section_is_command = raw_buffer.substr(-2) == ":|";
+
+    var split_buffer = raw_buffer.split(":|");
+    var last_section = split_buffer.pop();
+
+    for(var i = 0; i < split_buffer.length; i++){
+      process_command(split_buffer[i]);
+    }
+
+    if(last_section_is_command){
+      process_command(last_section);
+      raw_buffer = "";
+    } else {
+      raw_buffer = last_section;
+    }
+  })
+
+  function process_command(buffer){
+    var details = buffer.split('|:');
+    var command = details[0];
+    var data = details[1] ? JSON.parse(details[1]) : "";
+
+    switch(command){
+      case "login":
+        onLogin.call(socket, data, function(resp){
+          socket.write("login|:" + JSON.stringify(resp) + "\n");
+        });
+        break;
+      case "viewport.get_grid":
+        populate_grid.call(socket, function(resp){
+          socket.write("viewport.get_grid|:" + JSON.stringify(resp) + "\n");
+        });
+        break;
+      case "chat.public_message":
+        chatMessage.call(socket, data + "\n");
+        break;
+    }
+  }
+
+  socket.on('end', onDisconnect);
+}).listen(3060);
+
+console.log("TCP Server running on port 3060");
+
+process.on('uncaughtException', function (err) {
+  console.error(err);
+  console.log(err.stack);
+  console.log("Carrying on...\n");
+});
