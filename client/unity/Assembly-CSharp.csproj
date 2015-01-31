@@ -5,7 +5,7 @@
 	<Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
 	<ProductVersion>10.0.20506</ProductVersion>
 	<SchemaVersion>2.0</SchemaVersion>
-	<ProjectGuid>{79B3F523-E731-4421-5477-F1D35F06DEF8}</ProjectGuid>
+	<ProjectGuid>{C3DA89E1-70C6-7D6C-993E-C8F831D35880}</ProjectGuid>
 	<OutputType>Library</OutputType>
 	<AppDesignerFolder>Properties</AppDesignerFolder>
 	<RootNamespace></RootNamespace>
@@ -383,7 +383,7 @@
  <HintPath>C:/Program Files (x86)/Unity/Editor/Data/UnityExtensions/Unity/GUISystem/4.6.1/UnityEngine.UI.dll</HintPath>
  </Reference>
  <Reference Include="SampleClassLibrary">
- <HintPath>S:/Dropbox/Mike/Projects/Unity/TBG Unity Client/Assets/JsonDotNet/Examples/Tests/TestModels/SampleClassLibrary.dll</HintPath>
+ <HintPath>S:/Dropbox/Mike/Tim Related/TickBasedGame/client/unity/Assets/JsonDotNet/Examples/Tests/TestModels/SampleClassLibrary.dll</HintPath>
  </Reference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
