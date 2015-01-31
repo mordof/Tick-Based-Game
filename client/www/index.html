@@ -1,0 +1,126 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Socket.IO chat</title>
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      body { font: 13px Helvetica, Arial; background-color: black; }
+      form { background: #000; padding: 3px; height: 43px; position: fixed; bottom: 0; width: 430px; z-index: 4; }
+      form input#m { border: 0; padding: 10px; width: 424px; }
+      #message_holder {  position: fixed; z-index: 3; bottom: 43px; height: 200px; overflow: auto; background-color: rgba(150, 150, 150, 0.5); width: 430px; }
+      #messages { list-style-type: none; margin: 0; padding: 0;}
+      #messages li { padding: 5px 10px; }
+      #messages li { text-shadow: 1px 1px #000, -1px -1px #000, 1px 0px #000, 0px 1px #000, -1px 0px #000, 0px -1px #000; color: white; }
+      .rendererView {
+        position: absolute;
+        display: block;
+        width: 100%;
+        height: 100%;
+        z-index: 2;
+      }
+    </style>
+    <script src="socket.io/socket.io.js"></script>
+    <script src="javascript/pixi.js"></script>
+  </head>
+  <body>
+    <div id="message_holder">
+      <ul id="messages"></ul>
+    </div>
+    <form action="" id="input_form">
+      <input id="m" autocomplete="off" autofocus="autofocus" placeholder="Click here to start chatting...">
+    </form>
+    <script src="javascript/client.js"></script>
+
+    <script>
+      var viewWidth = 1241
+      var viewHeight = 972
+
+      // Create a pixi renderer
+      var renderer = new PIXI.autoDetectRenderer(viewWidth, viewHeight)
+      renderer.view.className = "rendererView"
+
+      document.body.appendChild(renderer.view);
+
+      // create an new instance of a pixi stage
+      var stage = new PIXI.Stage(0x000000, true);
+
+      var colors = {
+        blue: 0x0000FF,
+        red: 0xFF0000,
+        orange: 0xFFBB00,
+        purple: 0xBB00BB,
+        yellow: 0xFFFF00,
+        green: 0x00FF00,
+        white: 0xFFFFFF
+      }
+
+      function get_grid(){
+        socket.emit('viewport.get_grid', function(grid){
+
+          var grid_item_width = viewWidth / grid.length;
+          var grid_item_height = viewHeight / grid[0].length;
+
+          for(var x = 0; x < grid.length; x++){
+            for(var y = 0; y < grid[x].length; y++){
+              if(grid[y][x]){
+                var item = grid[y][x].obj;
+
+                switch(grid[y][x].type){
+                  case "star":
+                    var graphics = new PIXI.Graphics()
+
+                    graphics.beginFill(colors[item.color] * 0.4, 1);
+                    graphics.lineStyle(2, colors[item.color], 1);
+                    graphics.drawCircle(grid_item_width * x + 20 + item.offset.x, grid_item_height * y + 20 + item.offset.y, 10)
+
+                    var text = new PIXI.Text(item.count, { fill: "white", font: "8px" });
+                    text.position = { x: grid_item_width * x + 12 + item.offset.x, y: grid_item_height * y + 14 + item.offset.y }
+
+                    graphics.addChild(text);
+                    graphics.hitArea = new PIXI.Rectangle(grid_item_width * x + 20 + item.offset.x - 10, grid_item_height * y + 20 + item.offset.y - 10, 20, 20);
+
+                    graphics.setInteractive(true)
+                    graphics.buttonMode = true;
+                    graphics.mousedown = (function(obj, gfx, txt){ 
+                      var count = obj.count;
+
+                      return function(e){
+                        count++;
+                        txt.setText(count)
+                      }
+                    })(item, graphics, text);
+
+                    stage.addChild(graphics);
+
+                    break;
+                  case "ship":
+                    var graphics = new PIXI.Graphics()
+
+                    graphics.beginFill(colors.green, 1)
+                    graphics.lineStyle(2, colors.green, 1);
+                    graphics.moveTo(grid_item_width * x + 10, grid_item_height * y + 10)
+                    graphics.lineTo(grid_item_width * x + 30, grid_item_height * y + 30)
+                    graphics.lineTo(grid_item_width * x + 40, grid_item_height * y + 20)
+                    graphics.endFill()
+
+                    stage.addChild(graphics);
+                    break;
+                }
+              }
+            }
+          }
+        })
+      }
+  
+      function animate() 
+      {
+        // time to render the stage !
+        renderer.render(stage);
+          
+        // request another animation frame...
+        requestAnimationFrame(animate);
+      }
+      requestAnimationFrame(animate);
+    </script>
+  </body>
+</html>
