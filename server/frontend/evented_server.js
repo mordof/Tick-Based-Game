@@ -15,7 +15,7 @@ for(model in db){
   }
 }
 
-web.use(express.static(path.resolve('../../client/public')));
+web.use(express.static(path.resolve('../../client/www')));
 
 http.listen(3030, function(){
   console.log('Starting TBG Server on *:3030')
