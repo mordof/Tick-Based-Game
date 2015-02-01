@@ -377,7 +377,8 @@
      <Compile Include="Assets\JsonDotNet\Source\WinRT\Utilities\RT_TypeExtensions.cs" />
      <Compile Include="Assets\JsonDotNet\Source\WinRT\Utilities\RT_ValidationUtils.cs" />
      <Compile Include="Assets\MakePlanets.cs" />
-     <Compile Include="Assets\Networking.cs" />
+     <Compile Include="Assets\Networking\DispatchHandler.cs" />
+     <Compile Include="Assets\Networking\Networking.cs" />
      <None Include="Assets\JsonDotNet\ReadMe.txt" />
  <Reference Include="UnityEngine.UI">
  <HintPath>C:/Program Files (x86)/Unity/Editor/Data/UnityExtensions/Unity/GUISystem/4.6.1/UnityEngine.UI.dll</HintPath>
