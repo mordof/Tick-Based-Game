@@ -25,8 +25,10 @@ public class DispatchHandler {
 	private void Init(){}
 
 	public void recieveCommand(string command, string data){
+		command = command.Trim ();
+		data = data.Trim ();
+		Debug.Log (string.Format ("Command: {0}, Data: {1}", command, data));
 		if (command == "viewport.get_grid") {
-			Debug.Log (data);
 			List<RootObject> grid_stuff = JsonConvert.DeserializeObject<List<RootObject>>(data);
 
 			foreach(RootObject item in grid_stuff){
@@ -36,7 +38,9 @@ public class DispatchHandler {
 	}
 
 	public void recieveCommand(string command){
+		command = command.Trim ();
 
+		Debug.Log (string.Format ("Command: {0}", command));
 	}
 }
 
