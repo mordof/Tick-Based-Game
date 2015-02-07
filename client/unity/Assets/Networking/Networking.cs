@@ -6,6 +6,7 @@ using System.Net.Sockets;
 using System.IO;
 using System;
 using System.Text;
+using System.Text.RegularExpressions;
 
 public class Networking {
 	private bool clientClosed;
@@ -37,32 +38,32 @@ public class Networking {
 		stack_modifier_callback = callback;
 	}
 
-	private void Init (){
-		IPAddress ipa = new IPAddress (new byte[]{192, 168, 234, 130});
-		IPEndPoint endpoint = new IPEndPoint (ipa, 3060);
+    private void Init (){
+        //IPAddress ipa = new IPAddress (new byte[]{96, 46, 198, 55});
+    	IPAddress ipa = new IPAddress (new byte[]{192, 168, 1, 42});
+    	IPEndPoint endpoint = new IPEndPoint (ipa, 3060);
 
-		_socket = new Socket(endpoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
-		_socket.Connect (endpoint);
+    	_socket = new Socket(endpoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+    	_socket.Connect (endpoint);
 
-		byte[] buffer = new byte[1024];
-		_socket.BeginReceive (buffer, 0, buffer.Length, SocketFlags.None, ReceiveCallback, buffer);
+    	byte[] buffer = new byte[1024];
+    	_socket.BeginReceive (buffer, 0, buffer.Length, SocketFlags.None, ReceiveCallback, buffer);
 
-		clientClosed = false;
-	}
+    	clientClosed = false;
+    }
 
-	private void ReceiveCallback(IAsyncResult result){
-		byte[] buffer = (byte[])result.AsyncState;
-		int count = _socket.EndReceive (result);
+    private void ReceiveCallback(IAsyncResult result){
+    	byte[] buffer = (byte[])result.AsyncState;
+    	int count = _socket.EndReceive (result);
 
-		if (count > 0) {
-			//Debug.Log (Encoding.ASCII.GetString (buffer));
-			tcpMessages += Encoding.ASCII.GetString (buffer);
-			ParseBuffer ();
-		}
+    	if (count > 0) {
+    		tcpMessages += Encoding.ASCII.GetString (buffer, 0, count);
+            ParseBuffer ();
+    	}
 
-		buffer = new byte[1024];
-		_socket.BeginReceive (buffer, 0, buffer.Length, SocketFlags.None, ReceiveCallback, buffer);
-	}
+    	buffer = new byte[1024];
+    	_socket.BeginReceive (buffer, 0, buffer.Length, SocketFlags.None, ReceiveCallback, buffer);
+    }
 
 	private void ParseBuffer(){
 		bool is_end_of_command = (tcpMessages.Substring (tcpMessages.Length - 2) == ":|") ? true : false;

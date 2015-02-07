@@ -27,13 +27,18 @@ public class DispatchHandler {
 	public void recieveCommand(string command, string data){
 		command = command.Trim ();
 		data = data.Trim ();
-		Debug.Log (string.Format ("Command: {0}, Data: {1}", command, data));
 		if (command == "viewport.get_grid") {
-			List<RootObject> grid_stuff = JsonConvert.DeserializeObject<List<RootObject>>(data);
+			List<RootObject> grid_stuff = JsonConvert.DeserializeObject<List<RootObject>> (data);
 
-			foreach(RootObject item in grid_stuff){
-				MakePlanets.MakePlanet (item.obj.location[0], item.obj.location[1]);
+			foreach (RootObject item in grid_stuff) {
+				MakePlanets.MakePlanet (item.obj.location [0], item.obj.location [1]);
 			}
+		} else if (command == "chat.system") {
+			SystemMessage message = JsonConvert.DeserializeObject<SystemMessage> (data);
+			Chat.DisplayText (message.message);
+		} else if (command == "chat.global") {
+            ChatMessage message = JsonConvert.DeserializeObject<ChatMessage> (data);
+            Chat.DisplayText (string.Format ("{0}: {1}", message.from, message.message));
 		}
 	}
 
@@ -42,6 +47,17 @@ public class DispatchHandler {
 
 		Debug.Log (string.Format ("Command: {0}", command));
 	}
+}
+
+public class ChatMessage
+{
+	public string from { get; set; }
+	public string message { get; set; }
+}
+
+public class SystemMessage
+{
+	public string message { get; set; }
 }
 
 public class Offset

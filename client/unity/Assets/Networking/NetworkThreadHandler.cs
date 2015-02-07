@@ -6,14 +6,19 @@ public class NetworkThreadHandler : MonoBehaviour {
 	private LinkedList<KeyValuePair<string,string>> task_queue = new LinkedList<KeyValuePair<string,string>>();
 	private DispatchHandler dispatch_handler;
 
+    private Networking network;
+
+    void Awake() {
+        network = Networking.GetSingleton ();
+
+        network.SetStackCallback (ThreadStackModifier);
+    }
+
 	// Use this for initialization
 	void Start () {
-		Networking network = Networking.GetSingleton ();
 		dispatch_handler = DispatchHandler.GetSingleton ();
 
-		network.SetStackCallback (ThreadStackModifier);
-
-		network.WriteTCP ("login", "{\"username\": \"mordof\"}");
+        network.WriteTCP ("login", "{\"username\": \"mordof_home\"}");
 		network.WriteTCP ("chat.public_message", "\"Test Chat Message\"");
 		network.WriteTCP ("viewport.get_grid");
 	}
