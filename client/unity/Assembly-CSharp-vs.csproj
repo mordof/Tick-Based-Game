@@ -378,6 +378,7 @@
      <Compile Include="Assets\JsonDotNet\Source\WinRT\Utilities\RT_TypeExtensions.cs" />
      <Compile Include="Assets\JsonDotNet\Source\WinRT\Utilities\RT_ValidationUtils.cs" />
      <Compile Include="Assets\MakePlanets.cs" />
+     <Compile Include="Assets\MouseOverPlanet.cs" />
      <Compile Include="Assets\Networking\DispatchHandler.cs" />
      <Compile Include="Assets\Networking\NetworkThreadHandler.cs" />
      <Compile Include="Assets\Networking\Networking.cs" />

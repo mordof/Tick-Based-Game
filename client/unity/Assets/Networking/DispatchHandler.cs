@@ -31,7 +31,9 @@ public class DispatchHandler {
 			List<RootObject> grid_stuff = JsonConvert.DeserializeObject<List<RootObject>> (data);
 
 			foreach (RootObject item in grid_stuff) {
-				MakePlanets.MakePlanet (item.obj.location [0], item.obj.location [1]);
+                if(item.type == "star"){
+				    MakePlanets.MakePlanet (item.obj.location [0], item.obj.location [1]);
+                }
 			}
 		} else if (command == "chat.system") {
 			SystemMessage message = JsonConvert.DeserializeObject<SystemMessage> (data);
